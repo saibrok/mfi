@@ -1,28 +1,49 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div>
+    <Table>
+      <template #date="{ data: date = '-' }">
+        {{ new Date(date).toLocaleDateString() }}
+      </template>
+      <template #country="{ data: country = '-' }">
+        {{ country | countryName(countries) }}
+      </template>
+    </Table>
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Table from "./components/Table.vue";
 
 export default {
   name: "App",
+
   components: {
-    HelloWorld,
+    Table,
+  },
+
+  data() {
+    return {
+      countries: {
+        us: "США",
+        ru: "Россия",
+        de: "Германия",
+        kz: "Казахстан",
+      },
+    };
+  },
+
+  computed: {
+    name() {
+      return this.countries;
+    },
+  },
+
+  filters: {
+    countryName(value, countries) {
+      return countries[value];
+    },
   },
 };
 </script>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style lang="scss"></style>
