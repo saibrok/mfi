@@ -2,7 +2,13 @@
   <div>
     <Table>
       <template #date="{ data: date = '-' }">
-        {{ new Date(date).toLocaleDateString() }}
+        {{
+          new Date(date * 1000).toLocaleString("ru", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        }}
       </template>
       <template #country="{ data: country = '-' }">
         {{ country | countryName(countries) }}
@@ -28,6 +34,9 @@ export default {
         ru: "Россия",
         de: "Германия",
         kz: "Казахстан",
+        fr: "Франция",
+        by: "Беларусь",
+        au: "Австралия",
       },
     };
   },
@@ -40,10 +49,14 @@ export default {
 
   filters: {
     countryName(value, countries) {
-      return countries[value];
+      return countries[value.toLowerCase()];
     },
   },
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+* {
+  box-sizing: border-box;
+}
+</style>

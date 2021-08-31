@@ -2,11 +2,23 @@
   <table class="table">
     <thead>
       <tr>
-        <th v-for="column in columns" :key="column.id">{{ column.caption }}</th>
+        <th
+          v-for="column in columns"
+          :key="column.id"
+          @click="toggleSort(column.id)"
+        >
+          <div class="th-content">
+            {{ column.caption }}
+            <div v-if="sortingOptions[column.id]" class="arrow">
+              <template v-if="sortingOptions[column.id] === 1">▲</template>
+              <template v-if="sortingOptions[column.id] === -1">▼</template>
+            </div>
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, index) in rows" :key="index">
+      <tr v-for="(row, index) in sortedRows" :key="index">
         <td v-for="column in columns" :key="column.id">
           <slot :name="column.template" v-bind:data="row[column.id]">
             {{ row[column.id] }}
@@ -27,18 +39,79 @@ export default {
         { caption: "Дата рождения", id: "dob", template: "date" },
         { caption: "Страна проживания", id: "country", template: "country" },
       ],
+
       rows: [
         { fio: "Райли Рид", dob: 730166400, country: "us" },
         { fio: "Лоза Юрий Эдуардович", dob: -502243200, country: "ru" },
         { fio: "Меркель Ангела", dob: -487900800, country: "de" },
         { fio: "Назарбаев Нурсултан Абишевич", dob: -930614400, country: "kz" },
       ],
+      sortableСolumn: "",
+
+      sortingOptions: {
+        fio: 0,
+        dob: 0,
+        country: 0,
+      },
     };
+  },
+
+  computed: {
+    sortedRows() {
+      const sortedRows = [...this.rows];
+      return sortedRows.sort(
+        this.sortByField(
+          this.sortableСolumn,
+          this.sortingOptions[this.sortableСolumn]
+        )
+      );
+    },
+  },
+
+  mounted() {
+    if (localStorage.sortableСolumn) {
+      this.sortableСolumn = localStorage.sortableСolumn;
+    }
+    if (localStorage.sortingOptions) {
+      this.sortingOptions = JSON.parse(localStorage.sortingOptions);
+    }
+  },
+
+  methods: {
+    toggleSort(id) {
+      if (this.sortableСolumn !== id) {
+        this.sortingOptions = {
+          fio: 0,
+          dob: 0,
+          country: 0,
+        };
+
+        localStorage.sortingOptions = JSON.stringify(this.sortingOptions);
+        localStorage.sortableСolumn = this.sortableСolumn = id;
+      }
+
+      this.sortingOptions[this.sortableСolumn] >= 1
+        ? (this.sortingOptions[this.sortableСolumn] = -1)
+        : (this.sortingOptions[this.sortableСolumn] += 1);
+
+      localStorage.sortingOptions = JSON.stringify(this.sortingOptions);
+    },
+
+    sortByField(field, direction) {
+      return (a, b) => (a[field] > b[field] ? 1 * direction : -1 * direction);
+    },
   },
 };
 </script>
 
 <style scoped lang="scss">
+.th-content {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+// sample table styles
 .table {
   width: 100%;
   border: none;
